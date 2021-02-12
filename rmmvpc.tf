@@ -106,7 +106,7 @@ variable "resource_group" {
 
 
 variable "image_name" {
-  default = "r006-aeefaaf4-96d7-45fa-8dc5-d91710559c5c"
+  default = "r022-a48158f4-fda7-42e3-9b73-4f0576564086"
 }
 
 variable "profile" {
