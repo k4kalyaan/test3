@@ -123,7 +123,7 @@ variable "zone" {
   description = "The value of the zone of VPC."
   type        = string
 }
-**********************************************************************************
+
 #to declare the image value from the coss bucket
 #variable "rmm_cos_image_url" {
   #default     = "cos://us-south/cos-davidng-south/centos7v1n1-test.qcow2"
@@ -135,4 +135,4 @@ variable "zone" {
   #description = "The name of the custom image to be provisioned in your IBM Cloud account."
 #}
 
-**********************************************************************************
+
