@@ -1,7 +1,9 @@
+
 variable "TF_VERSION" {
- default = "0.12"
- description = "terraform engine version to be used in schematics"
+  default     = "0.12"
+  description = "terraform engine version to be used in schematics"
 }
+
 
 provider "ibm" {
   ibmcloud_api_key = var.ibmcloud_api_key
@@ -12,14 +14,18 @@ provider "ibm" {
 
 resource "ibm_is_vpc" "vpc" {
   name           = "${var.prefix}vpc"
-  resource_group = var.resource_group
+  resource_group = data.ibm_resource_group.rg.id
 }
 
+
+data "ibm_resource_group" "rg" {
+  name = var.resource_group
+}
 
 resource "ibm_is_security_group" "sg" {
   name           = "${var.prefix}sg"
   vpc            = ibm_is_vpc.vpc.id
-  resource_group = var.resource_group
+  resource_group = data.ibm_resource_group.rg.id
 }
 
 
@@ -39,7 +45,7 @@ resource "ibm_is_subnet" "subnet" {
   vpc                      = ibm_is_vpc.vpc.id
   zone                     = var.zone
   total_ipv4_address_count = 8
-  resource_group           = var.resource_group
+  resource_group           = data.ibm_resource_group.rg.id
 }
 
 
@@ -48,13 +54,14 @@ data "ibm_is_ssh_key" "ssh_key_id" {
 }
 
 
+
 resource "ibm_is_instance" "vsi" {
   name           = "${var.prefix}vsi"
   vpc            = ibm_is_vpc.vpc.id
   zone           = var.zone
   keys           = [data.ibm_is_ssh_key.ssh_key_id.id]
-  resource_group = var.resource_group
-  image          = var.image
+  resource_group = data.ibm_resource_group.rg.id
+  image          = var.image_name
   profile        = var.profile
 
   primary_network_interface {
@@ -66,7 +73,7 @@ resource "ibm_is_instance" "vsi" {
 resource "ibm_is_floating_ip" "fip" {
   name           = "${var.prefix}fip"
   target         = ibm_is_instance.vsi.primary_network_interface[0].id
-  resource_group = var.resource_group
+  resource_group = data.ibm_resource_group.rg.id
 }
 
 output "PUBLIC_IP" {
@@ -77,46 +84,45 @@ output "PUBLIC_IP" {
 Variable Section
 */
 
-variable ibmcloud_api_key {
+variable "ibmcloud_api_key" {
   description = "The IBM Cloud platform API key needed to deploy IAM enabled resources"
   type        = string
 }
 
-variable ssh_key {
-   description = "The IBM Cloud platform SSH keys"
-   type        = string
-  
+variable "ssh_key" {
+  description = "The IBM Cloud platform SSH keys"
+  type        = string
+
 }
 
-variable ibm_region {
-    description = "IBM Cloud region where all resources will be deployed"
-    type        = string
+variable "ibm_region" {
+  description = "IBM Cloud region where all resources will be deployed"
+  type        = string
 }
 
-variable resource_group {
- type        = string
+variable "resource_group" {
+  description = "Please enter your resource group name."
 }
 
 
-variable image {
-  default = "cos://us-south/cos-davidng-south/centos7v1n1-test.qcow2""
+variable "image_name" {
+  default = "r006-aeefaaf4-96d7-45fa-8dc5-d91710559c5c"
 }
 
-variable profile {
+variable "profile" {
   default = "cx2-2x4"
 }
 
 
-variable prefix {
+variable "prefix" {
   description = "The prefix of VPC."
   type        = string
 }
 
-variable zone {
+variable "zone" {
   description = "The value of the zone of VPC."
   type        = string
 }
-
 **********************************************************************************
 #to declare the image value from the coss bucket
 #variable "rmm_cos_image_url" {
