@@ -4,6 +4,13 @@ variable "TF_VERSION" {
   description = "terraform engine version to be used in schematics"
 }
 
+variable "image_url" {
+  default = "cos://us-south/cos-davidng-south/rackware%20golden%20imageRackwareRMMGoldenTemplate-0.qcow2"
+}
+
+/**
+            End of the Provider code
+*/
 
 provider "ibm" {
   ibmcloud_api_key = var.ibmcloud_api_key
@@ -13,7 +20,7 @@ provider "ibm" {
 ##################################################################################################
 
 resource "ibm_is_vpc" "vpc" {
-  name           = "${var.prefix}vpc"
+  name           = "${var.name}vpc"
   resource_group = data.ibm_resource_group.rg.id
 }
 
@@ -23,7 +30,7 @@ data "ibm_resource_group" "rg" {
 }
 
 resource "ibm_is_security_group" "sg" {
-  name           = "${var.prefix}sg"
+  name           = "${var.name}sg"
   vpc            = ibm_is_vpc.vpc.id
   resource_group = data.ibm_resource_group.rg.id
 }
@@ -41,7 +48,7 @@ resource "ibm_is_security_group_rule" "ssh" {
 }
 
 resource "ibm_is_subnet" "subnet" {
-  name                     = "${var.prefix}subnet"
+  name                     = "${var.name}subnet"
   vpc                      = ibm_is_vpc.vpc.id
   zone                     = var.zone
   total_ipv4_address_count = 8
@@ -54,14 +61,25 @@ data "ibm_is_ssh_key" "ssh_key_id" {
 }
 
 
+resource "ibm_is_image" "custom_image" {
+  name             = "${var.name}-cent-os-7"
+  href             = var.image_url
+  operating_system = "centos-7-amd64"
+  resource_group   = data.ibm_resource_group.rg.id
+  timeouts {
+    create = "30m"
+    delete = "30m"
+  }
+}
+
 
 resource "ibm_is_instance" "vsi" {
-  name           = "${var.prefix}vsi"
+  name           = "${var.name}vsi"
   vpc            = ibm_is_vpc.vpc.id
   zone           = var.zone
   keys           = [data.ibm_is_ssh_key.ssh_key_id.id]
   resource_group = data.ibm_resource_group.rg.id
-  image          = var.image_name
+  image          = ibm_is_image.custom_image.id
   profile        = var.profile
 
   primary_network_interface {
@@ -71,7 +89,7 @@ resource "ibm_is_instance" "vsi" {
 }
 
 resource "ibm_is_floating_ip" "fip" {
-  name           = "${var.prefix}fip"
+  name           = "${var.name}fip"
   target         = ibm_is_instance.vsi.primary_network_interface[0].id
   resource_group = data.ibm_resource_group.rg.id
 }
@@ -104,18 +122,13 @@ variable "resource_group" {
   description = "Please enter your resource group name."
 }
 
-
-variable "image_name" {
-  default = "r022-a48158f4-fda7-42e3-9b73-4f0576564086"
-}
-
 variable "profile" {
-  default = "cx2-2x4"
+  default = "bx2-2x8"
 }
 
 
-variable "prefix" {
-  description = "The prefix of VPC."
+variable "name" {
+  description = "The name of VPC."
   type        = string
 }
 
@@ -123,16 +136,3 @@ variable "zone" {
   description = "The value of the zone of VPC."
   type        = string
 }
-
-#to declare the image value from the coss bucket
-#variable "rmm_cos_image_url" {
-  #default     = "cos://us-south/cos-davidng-south/centos7v1n1-test.qcow2"
-  #description = "The COS image object URL for RMM image."
-#}
-
-#variable "rmm_vpc_image_name" {
- #default     = "centos7v1n1-test.qcow2"
-  #description = "The name of the custom image to be provisioned in your IBM Cloud account."
-#}
-
-
