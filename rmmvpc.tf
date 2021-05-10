@@ -67,8 +67,8 @@ resource "ibm_is_image" "custom_image" {
   operating_system = "centos-7-amd64"
   resource_group   = data.ibm_resource_group.rg.id
   timeouts {
-    create = "30m"
-    delete = "30m"
+    create = "90m"
+    delete = "90m"
   }
 }
 
