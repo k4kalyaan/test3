@@ -46,6 +46,22 @@ resource "ibm_is_security_group_rule" "ssh" {
     port_max = 22
   }
 }
+resource "ibm_is_security_group_rule" "ssh_443" {
+  group     = ibm_is_security_group.sg.id
+  direction = "inbound"
+  remote    = "0.0.0.0/0"
+
+ tcp {
+    port_min = 443
+    port_max = 443
+  }
+}
+resource "ibm_is_security_group_rule" "ssh_outbound" {
+  group     = ibm_is_security_group.sg.id
+  direction = "outbound"
+  remote    = "0.0.0.0/0"
+  
+}
 
 resource "ibm_is_subnet" "subnet" {
   name                     = "${var.name}subnet"
