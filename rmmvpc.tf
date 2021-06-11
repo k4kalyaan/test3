@@ -5,7 +5,7 @@ variable "TF_VERSION" {
 }
 
 variable "image_url" {
-  default = "cos://us-south/cos-davidng-south/RMMGoldenTemplatev2.qcow2"
+  default = "cos://us-south/cos-davidng-south/rmmv3RackwareGoldenTemplate.qcow2"
 }
 
 /**
