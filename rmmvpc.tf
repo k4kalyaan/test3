@@ -5,7 +5,7 @@ variable "TF_VERSION" {
 }
 
 variable "image_url" {
-  default = "cos://us-south/cos-davidng-south/RMMAutoprRackwareIBMGen2AP.qcow2"
+  default = "cos://us-south/cos-davidng-south/Rackware_RMM_AutoProvisioning_24Sep_RackWareRMMBYOLV2V.qcow2"
 }
 
 /**
